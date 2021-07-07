@@ -1,7 +1,7 @@
 package distance_test
 
 import (
-	"distance"
+	. "distance"
 	"testing"
 )
 
