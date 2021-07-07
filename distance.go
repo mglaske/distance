@@ -28,17 +28,22 @@ const (
 var Imperial bool = false
 
 const (
-	Thou       Distance = 25400
-	Mil                 = Thou
-	Barleycorn          = 846670
-	Inch                = Mil * 1000
-	Hand                = Inch * 4
-	Foot                = Inch * 12
-	Yard                = Foot * 3
-	Chain               = Yard * 22
-	Furlong             = Chain * 10
-	Mile                = Furlong * 8
-	League              = Mile * 3
+	Thou         Distance = 25400
+	Mil                   = Thou
+	Barleycorn            = 846670
+	Inch                  = Mil * 1000
+	Hand                  = Inch * 4
+	Foot                  = Inch * 12
+	Yard                  = Foot * 3
+	Chain                 = Foot * 66
+	Furlong               = Foot * 660
+	Mile                  = Foot * 5280
+	League                = Foot * 15840
+	Fathom                = Thou * 72000
+	Cable                 = Fathom * 100
+	NauticalMile          = Cable * 10
+	Link                  = Thou * 7920
+	Rod                   = Thou * 198000
 )
 
 func (d Distance) String() string {
@@ -158,7 +163,7 @@ func (d Distance) String() string {
 	return string(buf[w:])
 }
 
-func fmtFrac(buf []byte, v uint64, base, prec int) (nw int, nv uint64) {
+func fmtFrac(buf []byte, v, base uint64, prec int) (nw int, nv uint64) {
 	// Omit trailing zeros up to and including decimal point.
 	w := len(buf)
 	print := false
@@ -235,6 +240,72 @@ func (d Distance) Kilometers() float64 {
 	km := d / Kilometer
 	M := d % Kilometer
 	return float64(km) + float64(M)/1000
+}
+
+func (d Distance) Thous() float64 { return float64(d) / 25400 }
+
+func (d Distance) Mils() float64 { return d.Thous() }
+
+func (d Distance) Barleycorns() float64 { return float64(d) / 846670 }
+
+func (d Distance) Inches() float64 {
+	in := d / Inch
+	fra := d % Inch
+	return float64(in) + float64(fra)/100
+}
+
+func (d Distance) Feet() float64 {
+	ft := d / Foot
+	fra := d % Foot
+	return float64(ft) + float64(fra)/100
+}
+
+func (d Distance) Yards() float64 {
+	yd := d / Yard
+	fra := d % Yard
+	return float64(yd) + float64(fra)/100
+}
+
+func (d Distance) Furlongs() float64 {
+	fur := d / Furlong
+	fra := d % Furlong
+	return float64(fur) + float64(fra)/100
+}
+
+func (d Distance) Miles() float64 {
+	m := d / Mile
+	fra := d % Mile
+	return float64(m) + float64(fra)/100
+}
+
+func (d Distance) Fathoms() float64 {
+	ftm := d / Fathom
+	fra := d % Fathom
+	return float64(ftm) + float64(fra)/100
+}
+
+func (d Distance) Cables() float64 {
+	cable := d / Cable
+	fra := d % Cable
+	return float64(cable) + float64(fra)/100
+}
+
+func (d Distance) NauticalMiles() float64 {
+	nm := d / NauticalMile
+	fra := d % NauticalMile
+	return float64(nm) + float64(fra)/100
+}
+
+func (d Distance) Links() float64 {
+	link := d / Link
+	fra := d % Link
+	return float64(link) + float64(fra)/100
+}
+
+func (d Distance) Rods() float64 {
+	rod := d / Rod
+	fra := d % Rod
+	return float64(rod) + float64(fra)/100
 }
 
 // Truncate returns the result of rounding d toward zero to a multiple of m.
