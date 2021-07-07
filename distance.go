@@ -202,111 +202,47 @@ func fmtInt(buf []byte, v uint64) int {
 
 func (d Distance) Nanometers() int64 { return int64(d) }
 
-func (d Distance) Micrometers() int64 { return int64(d) / 1e3 }
+func (d Distance) Micrometers() float64 { return float64(d) / float64(Micrometer) }
 
-func (d Distance) Millimeters() int64 { return int64(d) / 1e6 }
+func (d Distance) Millimeters() float64 { return float64(d) / float64(Millimeter) }
 
-func (d Distance) Centimeters() float64 {
-	cm := d / Centimeter
-	mm := d % Centimeter
-	return float64(cm) + float64(mm)/10
-}
+func (d Distance) Centimeters() float64 { return float64(d) / float64(Centimeter) }
 
-func (d Distance) Decimeters() float64 {
-	dm := d / Decimeter
-	mm := d % Decimeter
-	return float64(dm) + float64(mm)/100
-}
+func (d Distance) Decimeters() float64 { return float64(d) / float64(Decimeter) }
 
-func (d Distance) Meters() float64 {
-	M := d / Meter
-	mm := d % Meter
-	return float64(M) + float64(mm)/1000
-}
+func (d Distance) Meters() float64 { return float64(d) / float64(Meter) }
 
-func (d Distance) Dekameters() float64 {
-	Dm := d / Dekameter
-	M := d % Dekameter
-	return float64(Dm) + float64(M)/10
-}
+func (d Distance) Dekameters() float64 { return float64(d) / float64(Dekameter) }
 
-func (d Distance) Hectometers() float64 {
-	Hm := d / Hectometer
-	M := d % Hectometer
-	return float64(Hm) + float64(M)/100
-}
+func (d Distance) Hectometers() float64 { return float64(d) / float64(Hectometer) }
 
-func (d Distance) Kilometers() float64 {
-	km := d / Kilometer
-	M := d % Kilometer
-	return float64(km) + float64(M)/1000
-}
+func (d Distance) Kilometers() float64 { return float64(d) / float64(Kilometer) }
 
-func (d Distance) Thous() float64 { return float64(d) / 25400 }
+func (d Distance) Thous() float64 { return float64(d) / float64(Thou) }
 
 func (d Distance) Mils() float64 { return d.Thous() }
 
-func (d Distance) Barleycorns() float64 { return float64(d) / 846670 }
+func (d Distance) Barleycorns() float64 { return float64(d) / float64(Barleycorn) }
 
-func (d Distance) Inches() float64 {
-	in := d / Inch
-	fra := d % Inch
-	return float64(in) + float64(fra)/100
-}
+func (d Distance) Inches() float64 { return float64(d) / float64(Inch) }
 
-func (d Distance) Feet() float64 {
-	ft := d / Foot
-	fra := d % Foot
-	return float64(ft) + float64(fra)/100
-}
+func (d Distance) Feet() float64 { return float64(d) / float64(Foot) }
 
-func (d Distance) Yards() float64 {
-	yd := d / Yard
-	fra := d % Yard
-	return float64(yd) + float64(fra)/100
-}
+func (d Distance) Yards() float64 { return float64(d) / float64(Yard) }
 
-func (d Distance) Furlongs() float64 {
-	fur := d / Furlong
-	fra := d % Furlong
-	return float64(fur) + float64(fra)/100
-}
+func (d Distance) Furlongs() float64 { return float64(d) / float64(Furlong) }
 
-func (d Distance) Miles() float64 {
-	m := d / Mile
-	fra := d % Mile
-	return float64(m) + float64(fra)/100
-}
+func (d Distance) Miles() float64 { return float64(d) / float64(Mile) }
 
-func (d Distance) Fathoms() float64 {
-	ftm := d / Fathom
-	fra := d % Fathom
-	return float64(ftm) + float64(fra)/100
-}
+func (d Distance) Fathoms() float64 { return float64(d) / float64(Fathom) }
 
-func (d Distance) Cables() float64 {
-	cable := d / Cable
-	fra := d % Cable
-	return float64(cable) + float64(fra)/100
-}
+func (d Distance) Cables() float64 { return float64(d) / float64(Cable) }
 
-func (d Distance) NauticalMiles() float64 {
-	nm := d / NauticalMile
-	fra := d % NauticalMile
-	return float64(nm) + float64(fra)/100
-}
+func (d Distance) NauticalMiles() float64 { return float64(d) / float64(NauticalMile) }
 
-func (d Distance) Links() float64 {
-	link := d / Link
-	fra := d % Link
-	return float64(link) + float64(fra)/100
-}
+func (d Distance) Links() float64 { return float64(d) / float64(Link) }
 
-func (d Distance) Rods() float64 {
-	rod := d / Rod
-	fra := d % Rod
-	return float64(rod) + float64(fra)/100
-}
+func (d Distance) Rods() float64 { return float64(d) / float64(Rod) }
 
 // Truncate returns the result of rounding d toward zero to a multiple of m.
 // If m <= 0, Truncate returns d unchanged.
