@@ -1,5 +1,9 @@
 package distance
 
+import (
+	"encoding/json"
+)
+
 type Distance int64
 
 const (
@@ -161,6 +165,10 @@ func (d Distance) String() string {
 	}
 
 	return string(buf[w:])
+}
+
+func (d Distance) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.String())
 }
 
 func fmtFrac(buf []byte, v, base uint64, prec int) (nw int, nv uint64) {
