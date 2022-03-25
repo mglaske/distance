@@ -103,24 +103,6 @@ func (d Distance) String() string {
 			if um > 0 {
 				out += fmt.Sprintf("%dμm", um)
 			}
-			/*
-				case d < Millimeter:
-					val = float64(d) / float64(Micrometer)
-					return fmt.Sprintf("%sμm", fmtWholeOrFrac(val))
-				case d >= Millimeter && d < Meter:
-					cm := d / Centimeter
-					val = float64(d%Centimeter) / float64(Millimeter)
-					if cm > 0 {
-						out = fmt.Sprintf("%dcm", cm)
-					}
-					if val > 0 {
-						out += fmt.Sprintf("%smm", fmtWholeOrFrac(val))
-					}
-					return out
-				case d >= Meter && d < Kilometer:
-					val = float64(d) / float64(Meter)
-					return fmt.Sprintf("%sM", fmtWholeOrFrac(val))
-			*/
 		}
 	}
 	return out
