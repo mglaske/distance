@@ -2,6 +2,8 @@ package distance
 
 import (
 	"encoding/json"
+	"fmt"
+	"math"
 )
 
 type Distance int64
@@ -51,161 +53,90 @@ const (
 )
 
 func (d Distance) String() string {
-	var buf [32]byte
-	w := len(buf)
-
-	u := uint64(d)
-	neg := d < 0
-	if neg {
-		u = -u
-	}
+	var val float64
+	var out string
+	//neg := d < 0
 
 	if Imperial {
-		if u < uint64(Inch) {
-			// Special case: if distance is smaller than a inch
-			// use smaller units, like 1.2Mil
-			var prec int
-			w--
-			switch {
-			case u == 0:
-				return "0in"
-			default:
-				// print mil
-				prec = 6
-				buf[w] = 'l'
-				w--
-				buf[w] = 'i'
-				w--
-				buf[w] = 'm'
-				w--
-			}
-			w, u = fmtFrac(buf[:w], u, 10, prec)
-			w = fmtInt(buf[:w], u)
-		} else {
-			w--
-			buf[w] = 'n'
-			w--
-			buf[w] = 'i'
-
-			w, u = fmtFrac(buf[:w], u, 12, 9)
-
-			// u is now integer feet
-			w = fmtInt(buf[:w], u%5280)
-			u /= 5280
-
-			// u is now integer miles
-			if u > 0 {
-				w--
-				buf[w] = 'i'
-				w--
-				buf[w] = 'm'
-				w = fmtInt(buf[:w], u)
-			}
+		switch {
+		case d < Inch:
+			val = float64(d) / float64(Mil)
+			return fmt.Sprintf("%smil", fmtWholeOrFrac(val))
+		case d >= Inch && d < Mile:
+			ft := d / Foot
+			in := float64(d%Foot) / float64(Inch)
+			return fmt.Sprintf("%dft%sin", ft, fmtWholeOrFrac(in))
+		case d >= Mile:
+			val = float64(d) / float64(Mile)
+			return fmt.Sprintf("%smi", fmtWholeOrFrac(val))
 		}
-
 	} else {
-		if u < uint64(Centimeter) {
-			// Special case: if distance is smaller than a centimeter,
-			// use smaller units, like 1.2ns
-			var prec int
-			w--
-			buf[w] = 'm' // suffix
-			w--
-			switch {
-			case u == 0:
-				return "0cm"
-			case u < uint64(Micrometer):
-				// print nanometers
-				prec = 0
-				buf[w] = 'n'
-			case u < uint64(Millimeter):
-				// print micrometer
-				prec = 3
-				// U+00B5 'µ' micro sign == 0xC2 0xB5
-				w-- // Need room for two bytes.
-				copy(buf[w:], "µ")
-			default:
-				// print millimeters
-				prec = 6
-				buf[w] = 'm'
+		out = ""
+		switch {
+		case d >= Kilometer:
+			val = float64(d) / float64(Kilometer)
+			return fmt.Sprintf("%skm", fmtWholeOrFrac(val))
+		case d < Kilometer && d >= Meter:
+			// Show meters
+			M := d / Meter
+			if M > 0 {
+				out += fmt.Sprintf("%dm", M)
 			}
-			w, u = fmtFrac(buf[:w], u, 10, prec)
-			w = fmtInt(buf[:w], u)
-		} else {
-			w--
-			buf[w] = 'm'
-
-			w, u = fmtFrac(buf[:w], u, 10, 9)
-
-			// u is now integer centimeters
-			w = fmtInt(buf[:w], u%100)
-			u /= 100
-
-			// u is now integer meters
-			if u > 0 {
-				w--
-				buf[w] = 'M'
-				w = fmtInt(buf[:w], u%1000)
-				u /= 1000
-
-				// u is now integer kilometer
-				// Stop at kilometers
-				if u > 0 {
-					w--
-					buf[w] = 'k'
-					w = fmtInt(buf[:w], u)
-				}
+			d -= M * Meter
+			fallthrough
+		case d < Meter && d >= Centimeter:
+			cm := d / Centimeter
+			if cm > 0 {
+				out += fmt.Sprintf("%dcm", cm)
 			}
+			d -= cm * Centimeter
+			fallthrough
+		case d < Centimeter && d >= Millimeter:
+			mm := d / Millimeter
+			if mm > 0 {
+				out += fmt.Sprintf("%dmm", mm)
+			}
+			d -= mm * Millimeter
+			fallthrough
+		case d < Millimeter && d >= Micrometer:
+			um := d / Micrometer
+			if um > 0 {
+				out += fmt.Sprintf("%dμm", um)
+			}
+			/*
+				case d < Millimeter:
+					val = float64(d) / float64(Micrometer)
+					return fmt.Sprintf("%sμm", fmtWholeOrFrac(val))
+				case d >= Millimeter && d < Meter:
+					cm := d / Centimeter
+					val = float64(d%Centimeter) / float64(Millimeter)
+					if cm > 0 {
+						out = fmt.Sprintf("%dcm", cm)
+					}
+					if val > 0 {
+						out += fmt.Sprintf("%smm", fmtWholeOrFrac(val))
+					}
+					return out
+				case d >= Meter && d < Kilometer:
+					val = float64(d) / float64(Meter)
+					return fmt.Sprintf("%sM", fmtWholeOrFrac(val))
+			*/
 		}
 	}
+	return out
+}
 
-	if neg {
-		w--
-		buf[w] = '-'
+func fmtWholeOrFrac(v float64) string {
+	w, f := math.Modf(v)
+	if f == 0 {
+		// Whole Number
+		return fmt.Sprintf("%.0f", w)
 	}
-
-	return string(buf[w:])
+	return fmt.Sprintf("%.2f", v)
 }
 
 func (d Distance) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.String())
-}
-
-func fmtFrac(buf []byte, v, base uint64, prec int) (nw int, nv uint64) {
-	// Omit trailing zeros up to and including decimal point.
-	w := len(buf)
-	print := false
-	for i := 0; i < prec; i++ {
-		digit := v % base
-		print = print || digit != 0
-		if print {
-			w--
-			buf[w] = byte(digit) + '0'
-		}
-		v /= base
-	}
-	if print {
-		w--
-		buf[w] = '.'
-	}
-	return w, v
-}
-
-// fmtInt formats v into the tail of buf.
-// It returns the index where the output begins.
-func fmtInt(buf []byte, v uint64) int {
-	w := len(buf)
-	if v == 0 {
-		w--
-		buf[w] = '0'
-	} else {
-		for v > 0 {
-			w--
-			buf[w] = byte(v%10) + '0'
-			v /= 10
-		}
-	}
-	return w
 }
 
 func (d Distance) Nanometers() int64 { return int64(d) }
