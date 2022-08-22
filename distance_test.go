@@ -1,8 +1,6 @@
-package distance_test
+package distance
 
 import (
-	//	"fmt"
-	"gitlab.glaske.net/mglaske/distance"
 	"math"
 	"testing"
 )
@@ -51,7 +49,7 @@ func TestDistances(t *testing.T) {
 	var tv, gv float64
 	var tvs, gvs string
 	for _, test := range dtests {
-		d := distance.Nanometer * distance.Distance(test.nanometers)
+		d := Nanometer * Distance(test.nanometers)
 		tv = float64(d.Micrometers())
 		gv = test.golden.Micrometers
 		if gv != 0 && !almostEqual(tv, gv) {
@@ -97,18 +95,17 @@ func TestDistances(t *testing.T) {
 		if gv != 0 && !almostEqual(tv, gv) {
 			t.Errorf("Miles Test for nanometers=%d lib_value=%f != %f", test.nanometers, tv, gv)
 		}
-		distance.Imperial = true
+		Imperial = true
 		tvs = d.String()
 		gvs = test.golden.ImperialString
 		if tvs != gvs {
 			t.Errorf("String test for nanometers=%d Imperial lib_value=%s != %s", test.nanometers, tvs, gvs)
 		}
-		distance.Imperial = false
+		Imperial = false
 		tvs = d.String()
 		gvs = test.golden.MetricString
 		if tvs != gvs {
 			t.Errorf("String test for nanometers=%d Metric lib_value=%s != %s", test.nanometers, tvs, gvs)
-			//t.Errorf("String test for nanometers=%d Metric lib_value=%s(%+v) != %s(%+v)", test.nanometers, tvs, []byte(tvs), gvs, []byte(gvs))
 		}
 	}
 }
